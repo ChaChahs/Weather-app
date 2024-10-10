@@ -6,6 +6,14 @@ import numpy as np
 # 딥러닝 모델 불러오기
 model = tf.keras.models.load_model("pet_ex.keras")
 
+# 과거에 테스트한 사진과 결과 저장 (세션 상태 활용)
+if 'past_results' not in st.session_state:
+    st.session_state['past_results'] = []
+
+# 사용자가 선택한 실제 감정 저장
+if 'user_selections' not in st.session_state:
+    st.session_state['user_selections'] = []
+
 # 이미지 전처리 함수 (224x224로 리사이즈 및 RGBA -> RGB 변환)
 def preprocess_image(image):
     if image.mode != 'RGB':
@@ -44,3 +52,33 @@ if uploaded_file is not None:
         st.write(f"**{emotion}**: {confidence:.2f}%")
     
     st.write(f"가장 확률이 높은 감정: **{predicted_emotion}**")
+
+    # 테스트 결과를 세션에 저장
+    st.session_state['past_results'].append({
+        'image': image,
+        'predicted_emotion': predicted_emotion,
+        'confidence': emotion_confidences[predicted_emotion]
+    })
+
+    # 사용자가 실제 감정을 선택할 수 있는 라디오 버튼 추가
+    st.write("이 사진의 실제 감정을 선택하세요:")
+    user_emotion = st.radio("실제 감정 선택:", ('Happy', 'Sad', 'Angry', 'Other'))
+
+    if st.button("선택 완료"):
+        # 사용자의 선택을 저장
+        st.session_state['user_selections'].append({
+            'image_name': uploaded_file.name,
+            'user_emotion': user_emotion
+        })
+        st.write(f"선택하신 감정: {user_emotion}")
+
+# 사이드바에 테스트 결과 보여주기
+st.sidebar.title("테스트한 이미지들")
+st.sidebar.write("여태까지 테스트한 사진들입니다.")
+for result in st.session_state['past_results']:
+    st.sidebar.image(result['image'], caption=f"{result['confidence']:.2f}%로 {result['predicted_emotion']}", use_column_width=True)
+
+# 사용자가 선택한 감정 결과 보여주기
+st.sidebar.write("사용자가 선택한 감정:")
+for selection in st.session_state['user_selections']:
+    st.sidebar.write(f"{selection['image_name']}: {selection['user_emotion']}")
