@@ -7,10 +7,10 @@ import numpy as np
 model = tf.keras.models.load_model("pet_ex.keras")
 
 # CSS 스타일로 배경 이미지 설정 (JPG 파일 사용)
-page_bg_img = '''
+page_bg_img = '''   
 <style>
 body {
-    background-image: url("https://example.com/paw_background.jpg");
+    background-image: url("https://img.freepik.com/free-vector/cute-animal-pattern-background-wallpaper-paw-print-vector-illustration_53876-146422.jpg");
     background-size: cover;
     background-repeat: repeat;
     background-attachment: fixed;
